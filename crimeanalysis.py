@@ -4,29 +4,31 @@ from crimeanalysisconfig import *
 
 def main():
     # Open connection to configured collection in MongoDB database which contains the Chicago crime data
-    client = MongoClient(MONGODB_HOST_NAME, MONGODB_PORT_NUMBER)
+    client = MongoClient(MONGODB_HOST_NAME, MONGODB_PORT_NUMBER,
+                         serverSelectionTimeoutMS = MONGODB_CONNECTION_ATTEMPT_LENGTH_MS)
     db = client[MONGODB_CHICAGO_CRIME_DATABASE_NAME]
     chicago_crime_collection = db[MONGODB_CHICAGO_CRIME_COLLECTION_NAME]
+    print(chicago_crime_collection.find_one())
 
     # Main program loop: prompt user to pick which query to perform on Chicago crime data
-    print 'Chicago Crime Data Analysis'
+    print('Chicago Crime Data Analysis\n')
     option = 1
     while option != 0:
-        print 'What option would you like to use? (enter 0 to exit)'
-        option_text = raw_input('--> ')
+        print('What option would you like to use? (enter 0 to exit)')
+        option_text = input('--> ')
         try:
             option = int(option_text)
         except ValueError:
             option = -1
         if option < 0 or option > 15:
-            print 'Please enter a valid number!'
+            print('Please enter a valid number!')
         elif option == 0:
             break
         else:
-            print 'TODO'
+            print('TODO')
 
     # Close connection to MongoDB database
     client.close()
-    print 'Goodbye!'
+    print('Goodbye!')
 
 main()
