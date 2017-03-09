@@ -12,19 +12,21 @@ def main():
     print 'Chicago Crime Data Analysis'
     option = 1
     while option != 0:
-        print 'Hi. What is your option?'
+        print 'What option would you like to use? (enter 0 to exit)'
         option_text = raw_input('--> ')
         try:
             option = int(option_text)
         except ValueError:
-            print 'Please enter a number!'
+            option = -1
         if option < 0 or option > 15:
             print 'Please enter a valid number!'
+        elif option == 0:
+            break
         else:
             print 'TODO'
-            break
 
     # Close connection to MongoDB database
     client.close()
+    print 'Goodbye!'
 
 main()
