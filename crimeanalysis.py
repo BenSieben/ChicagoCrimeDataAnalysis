@@ -20,20 +20,23 @@ def main():
     print('Connection successful!')
     db = client[MONGODB_CHICAGO_CRIME_DATABASE_NAME]
     chicago_crime_collection = db[MONGODB_CHICAGO_CRIME_COLLECTION_NAME]
+    print(type(chicago_crime_collection))
     # print(chicago_crime_collection.find_one())  # One example on a find of a single document
 
     # Main program loop: prompt user to pick which query to perform on Chicago crime data
-    option = 1
-    while option != 0:
-        print('What option would you like to use? (enter 0 to exit)')
+    option = 0
+    while option != -1:
+        print('What option would you like to use? (enter -1 to exit)')
         option_text = input('--> ')
+
         try:
             option = int(option_text)
         except ValueError:
-            option = -1
-        if option < 0 or option > 15:
+            option = -2
+
+        if option < -1 or option > 15:
             print('Please enter a valid number!')
-        elif option == 0:
+        elif option == -1:
             break
         else:
             print('TODO')
