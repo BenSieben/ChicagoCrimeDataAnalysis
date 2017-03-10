@@ -1,17 +1,28 @@
-from pymongo import MongoClient
+from pymongo import MongoClient, errors
 from crimeanalysisconfig import *
 
 
 def main():
+    print('Chicago Crime Data Analysis\n')
+
     # Open connection to configured collection in MongoDB database which contains the Chicago crime data
-    client = MongoClient(MONGODB_HOST_NAME, MONGODB_PORT_NUMBER,
-                         serverSelectionTimeoutMS = MONGODB_CONNECTION_ATTEMPT_LENGTH_MS)
+    print('Attempting to connect to MongoDB host ' + MONGODB_HOST_NAME + ' on port ' + str(MONGODB_PORT_NUMBER))
+    try:
+        client = MongoClient(MONGODB_HOST_NAME, MONGODB_PORT_NUMBER,
+                             serverSelectionTimeoutMS=MONGODB_CONNECTION_ATTEMPT_LENGTH_MS)
+        client.server_info()  # Establish working connection with MongoDB server by issuing a command on the client
+    except errors.ServerSelectionTimeoutError:
+        print('Connection timed out (current configuration times out connection after ' +
+              str(MONGODB_CONNECTION_ATTEMPT_LENGTH_MS) + ' milliseconds). Make sure the waiting time is' +
+              ' long enough and the correct hostname and port are being used in crimeanalysisconfig.py')
+        return
+
+    print('Connection successful!')
     db = client[MONGODB_CHICAGO_CRIME_DATABASE_NAME]
     chicago_crime_collection = db[MONGODB_CHICAGO_CRIME_COLLECTION_NAME]
-    print(chicago_crime_collection.find_one())
+    # print(chicago_crime_collection.find_one())  # One example on a find of a single document
 
     # Main program loop: prompt user to pick which query to perform on Chicago crime data
-    print('Chicago Crime Data Analysis\n')
     option = 1
     while option != 0:
         print('What option would you like to use? (enter 0 to exit)')
