@@ -7,3 +7,5 @@ Here is a breakdown of the current modules in the project:
     + crimeanalysis.py - holds main program to run
     
     + crimeanalysisconfig.py - holds constants to use in the program for configuring settings such as MongoDB connection values
+
+    + crimeanalysisfunctions.py - has all the functions to print out query options and the actual query implementations

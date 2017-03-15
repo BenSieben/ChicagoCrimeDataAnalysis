@@ -1,7 +1,9 @@
 from pymongo import MongoClient, errors
 from crimeanalysisconfig import *
+from crimeanalysisfunctions import *
 
 
+# Main module which handles running the entire program
 def main():
     print('Chicago Crime Data Analysis\n')
 
@@ -26,7 +28,7 @@ def main():
     # Main program loop: prompt user to pick which query to perform on Chicago crime data
     option = 0
     while option != -1:
-        print('What option would you like to use? (enter -1 to exit)')
+        print('What option would you like to use? (enter -1 to exit; enter 0 to show query options)')
         option_text = input('--> ')
 
         try:
@@ -39,7 +41,7 @@ def main():
         elif option == -1:
             break
         else:
-            print('TODO')
+            print(run_query(option, chicago_crime_collection))
 
     # Close connection to MongoDB database
     client.close()
