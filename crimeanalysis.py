@@ -25,14 +25,26 @@ def main():
 
     # Main program loop: prompt user to pick which query to perform on Chicago crime data
     print('\nHere are the current query options in the program:')
+    print(run_query(0, chicago_crime_collection))  # Manually call run_query with 0 to show options
     option = 0
     while option != EXIT_SHELL_VALUE:
+        print('\nWhat option would you like to use? (enter -1 to exit; enter 0 to show query options)')
+        option_text = input('--> ')
+
+        # Try to read in int value from user.
+        # If it is not an integer, set option to -2 to trigger error print in next loop
+        try:
+            option = int(option_text)
+        except ValueError:
+            option = -2
+
         # Check for valid options being used
-        if option < -1 or option > 15:
+        if option < EXIT_SHELL_VALUE or option > NUMBER_OF_QUERIES:
             print('Please enter a valid number!')
+            option = 1
 
         # Exit
-        elif option == -EXIT_SHELL_VALUE:
+        elif option == EXIT_SHELL_VALUE:
             break
 
         else:
@@ -48,19 +60,8 @@ def main():
                     if option != 'it':
                         break
                     result = print_n_lines(result, NUM_LINES_TO_PRINT)
-
             else:
                 print(run_query(option, chicago_crime_collection))
-
-            print('\nWhat option would you like to use? (enter -1 to exit; enter 0 to show query options)')
-            option_text = input('--> ')
-
-            # Try to read in int value from user.
-            # If it is not an integer, set option to -2 to trigger error print in next loop
-            try:
-                option = int(option_text)
-            except ValueError:
-                option = -2
 
     # Close connection to MongoDB database
     client.close()
