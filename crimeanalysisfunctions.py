@@ -1,3 +1,4 @@
+from datetime import datetime
 # Module which has all the logic of the functions to use in the program
 OPTION_LIST = [
     '[0] Show this message again',
@@ -16,6 +17,7 @@ OPTION_LIST = [
     '[13] Find all the different kinds of description values for the “DECEPTIVE PRACTICE” primary type key',
     '[14] Find reports with an x-coordinate between (inclusive on both ends) 117700 and 117800',
     '[15] Find hourly breakdown of “THEFT” in 2016',
+    '[16] Update a chosen "_id" key for a document to update to have its "Update On" key updated to the current time'
 ]  # List of all options in the program
 
 
@@ -46,6 +48,34 @@ def get_query_list():
 # Function which handles bad indexes given in run_query
 def bad_index(index):
     return 'Error: index ' + str(index) + ' is not a valid option!'
+
+
+# Get time string in a format that is used in the Chicago Crime collection data
+def get_current_datetime():
+    # Use datetime to get current time
+    now = str(datetime.now())
+
+    # Extract pieces of time from the datetime.now() call
+    year = now[0:now.find('-')]
+    month = now[now.find('-')+1:now.rfind('-')]
+    day = now[now.rfind('-')+1:now.find(' ')]
+
+    time = now[now.find(' ')+1:now.find('.')]
+    hour = int(time[0:time.find(':')])
+
+    # Depending on the hour, we must indicate AM / PM and adjust hour value accordingly
+    time_period = 'PM'
+    if hour < 12:
+        hour += 12
+        time_period = 'AM'
+    hour -= 12  # Move hour back 12 hours so we get back in range of 1 to 12
+    if hour == 0:  # Fix edge case with 0 as the hour by setting hour to 12 manually
+        hour = 12
+
+    # Create the 12-hour time matching the format in Chicago Crime data and return time in proper format
+    time_12hour = str(hour) + ':' + time[time.find(':')+1:len(time)] + ' ' + time_period
+    current_day = month + '/' + day + '/' + year
+    return current_day + ' ' + time_12hour
 
 
 # Query 1: List all the primary types of crimes recorded (kidnapping, theft, robbery, etc.)
@@ -150,26 +180,80 @@ def query_15(collection):
            'Query 15 is still in progress...'  # TODO implement query 15
 
 
+# Update 1: Update a chosen "_id" key for a document to update to have its "Updated On"
+#   key updated to the current time, and show this change by querying for given "_id" before and after
+#   the attempted update
+# 02/04/2016 06:33:39 AM is an example entry in the "Updated On" key
+def update_1(collection):
+    # Print out prompt to user to pick _id to change "Updated On" key for
+    print('Update 1: Update a chosen "_id" key for a document to update to have '
+          'its "Updated On" key updated to the current time')
+    print('What is the _id of the report you would like to update?')
+    option = input('--> ')
+    try:
+        option = int(option)
+    except ValueError:
+        return '_id must be a number! Going back to main prompt...'
+
+    # Attempt to look up collection for a document with matching _id, and return if nothing is found
+    doc_before_update = collection.find_one({"_id": option},
+                                            {"_id": 1, "Case Number": 1, "Date": 1, "Primary Type": 1,
+                                             "Description": 1, "Updated On": 1})
+    if doc_before_update is None:  # This means the find_one() call found nothing
+        return 'Could not find any document with _id ' + str(option) + '!'
+    else:
+        print('Found the following matching document (picking a few keys only):\n' + str(doc_before_update))
+
+    # Get current time and update the document with the chosen _id to the current time
+    dt = get_current_datetime()
+    print(dt)
+    collection.update_one({'_id': option}, {"$set": {"Updated On": dt}}, upsert=False)
+
+    # Return a find_one() call on the same document again
+    return 'Here is the updated version of the document (picking a few keys only):\n' + \
+           str(collection.find_one({"_id": option},
+                                   {"_id": 1, "Case Number": 1, "Date": 1, "Primary Type": 1, "Description": 1,
+                                    "Updated On": 1}))
+
+
 # Main function which routes the given option to the proper query to run
 #   (needs to have the pymongo.collection.Collection passed in as "collection" to run the queries on)
 def run_query(index, collection):
-    if type(index) is int:
-        return {
-            0: get_query_list(),
-            1: query_1(collection),
-            2: query_2(collection),
-            3: query_3(collection),
-            4: query_4(collection),
-            5: query_5(collection),
-            6: query_6(collection),
-            7: query_7(collection),
-            8: query_8(collection),
-            9: query_9(collection),
-            10: query_10(collection),
-            11: query_11(collection),
-            12: query_12(collection),
-            13: query_13(collection),
-            14: query_14(collection),
-            15: query_15(collection)
-        }.get(index, bad_index(index))
+    if type(index) is int:  # Make sure that index is an integer
+        if index == 0:
+            return get_query_list()
+        elif index == 1:
+            return query_1(collection)
+        elif index == 2:
+            return query_2(collection)
+        elif index == 3:
+            return query_3(collection)
+        elif index == 4:
+            return query_4(collection)
+        elif index == 5:
+            return query_5(collection)
+        elif index == 6:
+            return query_6(collection)
+        elif index == 7:
+            return query_7(collection)
+        elif index == 8:
+            return query_8(collection)
+        elif index == 9:
+            return query_9(collection)
+        elif index == 10:
+            return query_10(collection)
+        elif index == 11:
+            return query_11(collection)
+        elif index == 12:
+            return query_12(collection)
+        elif index == 13:
+            return query_13(collection)
+        elif index == 14:
+            return query_14(collection)
+        elif index == 15:
+            return query_15(collection)
+        elif index == 16:
+            return update_1(collection)
+        else:
+            bad_index(index)  # If given index is not valid, give back bad_index() response
     return 'Type of index must be int, not ' + str(type(index)) + ' for run_query'

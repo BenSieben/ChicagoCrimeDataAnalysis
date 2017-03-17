@@ -10,5 +10,5 @@ MONGODB_CONNECTION_ATTEMPT_LENGTH_MS = 5000  # How many milliseconds to try esta
 NUM_LINES_TO_PRINT = 10  # How many lines at a time to print results to console
 
 EXIT_SHELL_VALUE = -1  # Value user enters into program to indicate they want to exit
-NUMBER_OF_QUERIES = 15  # Total number of queries currently listed as options in the program
+NUMBER_OF_QUERIES = 16  # Total number of queries currently listed as options in the program
 SHOW_OPTIONS_VALUE = 0  # Value user enters into program to indicate they want to see all options again
