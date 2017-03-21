@@ -206,7 +206,7 @@ def update_1(collection):
 
     # Get current time and update the document with the chosen _id to the current time
     dt = get_current_datetime()
-    print(dt)
+    print('Updating the "Updated On" key value to "' + str(dt) + '"')
     collection.update_one({'_id': option}, {"$set": {"Updated On": dt}}, upsert=False)
 
     # Return a find_one() call on the same document again
