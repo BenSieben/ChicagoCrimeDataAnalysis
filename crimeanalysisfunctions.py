@@ -152,32 +152,40 @@ def query_10(collection):
 # Query 11: Get all reported crimes on street “E HURON ST” or “W HURON ST”
 def query_11(collection):
     return 'Query 11: Get all reported crimes on street “E HURON ST” or “W HURON ST”\n' + \
-           'Query 11 is still in progress...'  # TODO implement query 11
+           print_list(collection.find({"$or": [{"Block": {'$regex': "W HURON ST"}}, {"Block": {'$regex': "E HURON ST"}}]}))
 
 
 # Query 12: Find the ward(s) with the least number of crime reports
 def query_12(collection):
+    pipeline = [
+        {"$group": {"_id": {"ward": "$Ward"}, "totalAmount": {"$sum": 1}}},
+        {"$sort": {"totalAmount": 1}}
+    ]
     return 'Query 12: Find the ward(s) with the least number of crime reports\n' + \
-           'Query 12 is still in progress...'  # TODO implement query 12
+           print_list(collection.aggregate(pipeline))
 
 
 # Query 13: Find all the different kinds of description values for the “DECEPTIVE PRACTICE” primary type key
 def query_13(collection):
     return 'Query 13: Find all the different kinds of description values for the ' \
            '“DECEPTIVE PRACTICE” primary type key\n' + \
-           'Query 13 is still in progress...'  # TODO implement query 13
+           print_list(collection.find({"Primary Type": "DECEPTIVE PRACTICE"}, {"Description": 1, "_id":0}))
 
 
 # Query 14: Find reports with an x-coordinate between (inclusive on both ends) 117700 and 117800
 def query_14(collection):
     return 'Query 14: Find reports with an x-coordinate between (inclusive on both ends) 117700 and 117800\n' + \
-           'Query 14 is still in progress...'  # TODO implement query 14
+           print_list(collection.find({"X Coordinate": {"$gte": 1173000, "$lte": 1175000}}))
 
 
 # Query 15: Find hourly breakdown of “THEFT” in 2016
 def query_15(collection):
+    pipeline = [
+        {"$project": {"_id": 1, "year": {"$year": "$Date"}, "month": {"$month": "$Date"}, "day": {"$dayOfMonth": "$Date"}}},
+        {"$group": {"_id": {"year": "$year", "month": "$month", "day": "$day"}, "sum": {"$sum": 1}}}
+    ]
     return 'Query 15: Find hourly breakdown of “THEFT” in 2016\n' + \
-           'Query 15 is still in progress...'  # TODO implement query 15
+           print_list(collection.aggregate(pipeline))
 
 
 # Update 1: Update a chosen "_id" key for a document to update to have its "Updated On"
