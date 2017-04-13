@@ -6,17 +6,17 @@ OPTION_LIST = [
     '[2] Find the most reported primary type of crime (regardless of if an arrest was made or not)',
     '[3] Determine total number of reported crimes for each year',
     '[4] Find all reported crimes in district 1',
-    '[5] Find all reported crimes with the primary type of “NARCOTICS”',
-    '[6] Find the top 10 locations where the most “THEFT” happens',
+    '[5] Find all reported crimes with the primary type of "NARCOTICS"',
+    '[6] Find the top 10 locations where the most "THEFT" happens',
     '[7] Find the crime in which most arrests were made',
     '[8] Find the number of domestic crimes in Apartments or Residences',
     '[9] Find the type of crimes committed in School and Universities',
-    '[10] Find the number of arrests made in “WEAPONS VIOLATION”',
-    '[11] Get all reported crimes on street “E HURON ST” or “W HURON ST”',
+    '[10] Find the number of arrests made in "WEAPONS VIOLATION"',
+    '[11] Get all reported crimes on street "E HURON ST" or "W HURON ST"',
     '[12] Find the ward(s) with the least number of crime reports',
-    '[13] Find all the different kinds of description values for the “DECEPTIVE PRACTICE” primary type key',
+    '[13] Find all the different kinds of description values for the "DECEPTIVE PRACTICE" primary type key',
     '[14] Find reports with an x-coordinate between (inclusive on both ends) 117700 and 117800',
-    '[15] Find hourly breakdown of “THEFT” in 2016',
+    '[15] Find hourly breakdown of "THEFT" in 2016',
     '[16] Update a chosen "_id" key for a document to update to have its "Update On" key updated to the current time'
 ]  # List of all options in the program
 
@@ -113,45 +113,66 @@ def query_4(collection):
            print_list(collection.find({"District": 1}))
 
 
-# Query 5: Find all reported crimes with the primary type of “NARCOTICS”
+# Query 5: Find all reported crimes with the primary type of "NARCOTICS"
 def query_5(collection):
-    return 'Query 5: Find all reported crimes with the primary type of “NARCOTICS”\n' + \
+    return 'Query 5: Find all reported crimes with the primary type of "NARCOTICS"\n' + \
            print_list(collection.find({"Primary Type": "NARCOTICS"}))
 
 
-# Query 6: Find the top 10 locations where the most “THEFT” happens
+# Query 6: Find the top 10 locations where the most "THEFT" happens
 def query_6(collection):
-    return 'Query 6: Find the top 10 locations where the most “THEFT” happens\n' + \
-           'Query 6 is still in progress...'  # TODO implement query 6
+    pipeline = [
+        { "$match":{"Primary Type": "THEFT"}},
+        {"$group": {"_id": "$Location Description", "num_theft": {"$sum": 1}}},
+        {"$sort": {"num_theft": -1}},
+        {"$limit":10}
+    ]
+    return 'Query 6: Find the top 10 locations where the most "THEFT" happens\n' + \
+           print_list(collection.aggregate(pipeline))
 
 
 # Query 7: Find the crime in which most arrests were made
 def query_7(collection):
+    pipeline = [
+        {"$match": {"Arrest":"true"}},
+        {"$group": {"_id":"$Primary Type", "num_arrests": {"$sum" : 1}}},
+        {"$sort": { "num_arrests":-1}},
+        {"$limit": 1}
+    ]
     return 'Query 7: Find the crime in which most arrests were made\n' + \
-           'Query 7 is still in progress...'  # TODO implement query 7
+           print_list(collection.aggregate(pipeline))
 
 
 # Query 8: Find the number of domestic crimes in Apartments or Residences
 def query_8(collection):
+    pipeline = [
+        { "$match": { "$and": [{"Primary Type": "DOMESTIC VIOLENCE"}],"$or": [{"Location Description": "APARTMENT"},
+                                                                          {"Location Description": "RESIDENCE"}]}},
+        {"$group": {"_id": "$Primary Type", "num_crimes": {"$sum": 1}}}
+    ]
     return 'Query 8: Find the number of domestic crimes in Apartments or Residences\n' + \
-           'Query 8 is still in progress...'  # TODO implement query 8
+           print_list(collection.aggregate(pipeline))
 
 
 # Query 9: Find the type of crimes committed in School and Universities
 def query_9(collection):
     return 'Query 9: Find the type of crimes committed in School and Universities\n' + \
-           'Query 9 is still in progress...'  # TODO implement query 9
+           print_list(collection.distinct("Primary Type",{"$or": [ {"Location Description":"SCHOOL, PRIVATE, BUILDING"},{"Location Description": "SCHOOL, PUBLIC, GROUNDS" },{"Location Description": "SCHOOL, PRIVATE, GROUNDS"}]}))
 
 
-# Query 10:  Find the number of arrests made in “WEAPONS VIOLATION”
+# Query 10:  Find the number of arrests made in "WEAPONS VIOLATION"
 def query_10(collection):
-    return 'Query 10:  Find the number of arrests made in “WEAPONS VIOLATION”\n' + \
-           'Query 10 is still in progress...'  # TODO implement query 10
+    pipeline = [
+        {"$match":{"Arrest": "true", "Primary Type": "WEAPONS VIOLATION"}},
+        {"$group": {"_id": "$Primary Type", "num_arrests": {"$sum": 1}}}
+    ]
+    return 'Query 10:  Find the number of arrests made in "WEAPONS VIOLATION"\n' + \
+           print_list(collection.aggregate(pipeline))
 
 
-# Query 11: Get all reported crimes on street “E HURON ST” or “W HURON ST”
+# Query 11: Get all reported crimes on street "E HURON ST" or "W HURON ST"
 def query_11(collection):
-    return 'Query 11: Get all reported crimes on street “E HURON ST” or “W HURON ST”\n' + \
+    return 'Query 11: Get all reported crimes on street "E HURON ST" or "W HURON ST"\n' + \
            print_list(collection.find({"$or": [{"Block": {'$regex': "W HURON ST"}}, {"Block": {'$regex': "E HURON ST"}}]}))
 
 
@@ -165,10 +186,10 @@ def query_12(collection):
            print_list(collection.aggregate(pipeline))
 
 
-# Query 13: Find all the different kinds of description values for the “DECEPTIVE PRACTICE” primary type key
+# Query 13: Find all the different kinds of description values for the "DECEPTIVE PRACTICE" primary type key
 def query_13(collection):
     return 'Query 13: Find all the different kinds of description values for the ' \
-           '“DECEPTIVE PRACTICE” primary type key\n' + \
+           '"DECEPTIVE PRACTICE" primary type key\n' + \
            print_list(collection.find({"Primary Type": "DECEPTIVE PRACTICE"}, {"Description": 1, "_id":0}))
 
 
@@ -178,13 +199,13 @@ def query_14(collection):
            print_list(collection.find({"X Coordinate": {"$gte": 1173000, "$lte": 1175000}}))
 
 
-# Query 15: Find hourly breakdown of “THEFT” in 2016
+# Query 15: Find hourly breakdown of "THEFT" in 2016
 def query_15(collection):
     pipeline = [
         {"$project": {"_id": 1, "year": {"$year": "$Date"}, "month": {"$month": "$Date"}, "day": {"$dayOfMonth": "$Date"}}},
         {"$group": {"_id": {"year": "$year", "month": "$month", "day": "$day"}, "sum": {"$sum": 1}}}
     ]
-    return 'Query 15: Find hourly breakdown of “THEFT” in 2016\n' + \
+    return 'Query 15: Find hourly breakdown of "THEFT" in 2016\n' + \
            print_list(collection.aggregate(pipeline))
 
 
