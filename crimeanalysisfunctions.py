@@ -199,14 +199,11 @@ def query_14(collection):
            print_list(collection.find({"X Coordinate": {"$gte": 1173000, "$lte": 1175000}}))
 
 
-# Query 15: Find hourly breakdown of "THEFT" in 2016
+# Query 15: Find Arrests from Domestic disputes that happen on Christmas Day
 def query_15(collection):
-    pipeline = [
-        {"$project": {"_id": 1, "year": {"$year": "$Date"}, "month": {"$month": "$Date"}, "day": {"$dayOfMonth": "$Date"}}},
-        {"$group": {"_id": {"year": "$year", "month": "$month", "day": "$day"}, "sum": {"$sum": 1}}}
-    ]
-    return 'Query 15: Find hourly breakdown of "THEFT" in 2016\n' + \
-           print_list(collection.aggregate(pipeline))
+
+    return 'Query 15: Find Arrests from Domestic disputes that happen on Christmas Day\n' + \
+           print_list(collection.find({"$and": [{"Date": {"$regex": ".*12/25.*"}}, {"Arrest": "true"}, {"Domestic": "true"}]}, {"_id": 0, "Primary Type": 1, "Description": 1}))
 
 
 # Update 1: Update a chosen "_id" key for a document to update to have its "Updated On"
