@@ -16,7 +16,7 @@ OPTION_LIST = [
     '[12] Find the ward(s) with the least number of crime reports',
     '[13] Find all the different kinds of description values for the "DECEPTIVE PRACTICE" primary type key',
     '[14] Find reports with an x-coordinate between (inclusive on both ends) 117700 and 117800',
-    '[15] Find hourly breakdown of "THEFT" in 2016',
+    '[15] Find Arrests from Domestic disputes that happen on Christmas Day',
     '[16] Update a chosen "_id" key for a document to update to have its "Update On" key updated to the current time'
 ]  # List of all options in the program
 
@@ -31,11 +31,13 @@ def print_n_lines(print_str, n):
     return '\n'.join(split_lines[i:])  # Join back remaining part of split lines with \n and return it
 
 
-# Function to make specific kind of string for a list
+# Function to make specific kind of string for a list. Also indicates when a given list is empty
 def print_list(lst):
     print_out = ''
     for elem in lst:
         print_out += str(elem) + '\n'
+    if print_out == '':  # If there were no results, indicate so (rather than returning empty string)
+        return "No results found!"
     return print_out
 
 
